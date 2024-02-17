@@ -1,0 +1,38 @@
+#' ---
+#' title: "Aser Moustafa"
+#' output: html_document
+#' date: "`r Sys.Date()`"
+#' ---
+#' 
+## --------------------------------------------------------------------------------------------------------------------
+if (!require(here)) {install.packages("here"); library("here")}
+setwd(here())
+
+#' 
+## --------------------------------------------------------------------------------------------------------------------
+too_inexpensive_data <- read.csv('./too_inexpensive_data.csv')
+inexpensive_data <- read.csv('./inexpensive_data.csv')
+expensive_data <- read.csv('./expensive_data.csv')
+too_expensive_data <- read.csv('./too_expensive_data.csv')
+
+# Combine the data
+too_inexpensive_data$category <- 'Too Inexpensive'
+inexpensive_data$category <- 'Inexpensive'
+expensive_data$category <- 'Expensive'
+too_expensive_data$category <- 'Too Expensive'
+
+too_inexpensive_data$cum_sum <- -cumsum(too_inexpensive_data$Percent) / 100 + 1
+inexpensive_data$cum_sum <- -cumsum(inexpensive_data$Percent) / 100 + 1
+expensive_data$cum_sum <- cumsum(expensive_data$Percent) / 100
+too_expensive_data$cum_sum <- cumsum(too_expensive_data$Percent) / 100
+
+combined_data <- rbind(too_inexpensive_data, inexpensive_data, expensive_data, too_expensive_data)
+
+# Plotting with smooth lines
+ggplot(data = combined_data, aes(x = Price, y = cum_sum, color = category)) +
+  geom_line() +
+  xlim(0,50) +
+  scale_color_manual(values = c('Too Inexpensive' = 'green', 'Inexpensive' = 'blue', 'Expensive' = 'orange', 'Too Expensive' = 'red')) +
+  labs(title = "Price Sensitivity Meter", x = "Price ($)", y = "% Respondents", color = "Category") +
+  theme_minimal()
+
